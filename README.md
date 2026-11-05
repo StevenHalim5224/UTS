@@ -4,15 +4,13 @@
 Pastikan Node.js versi 22.12 atau lebih baru sudah terpasang. Dari folder
 proyek, jalankan:
 
-```bash
-npm ci
+
+npm i
 npm run dev
-```
 
-Buka alamat lokal yang ditampilkan Vite di browser. Untuk menghentikan server,
-tekan `Ctrl+C` di terminal.
 
-d### Akun demo
+
+Akun
 
 - **Admin:** username `Admin`, password `Admin`.
 - **Penghuni:** pilih **Daftar Akun Baru** pada halaman login.
