@@ -7,26 +7,38 @@ import {
   MessageSquare,
   LogOut,
   ArrowUpRight,
+  Receipt,
+  UserRound,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useKos } from "../context/kosContext";
 
-const menus = [
+const adminMenus = [
   ["/dashboard", "Ringkasan", LayoutDashboard],
   ["/kamar", "Manajemen kamar", DoorOpen],
   ["/penghuni", "Data penghuni", Users],
   ["/keuangan", "Keuangan", Wallet],
   ["/keluhan", "Laporan penghuni", MessageSquare],
-];
+] as const;
+
+const penghuniMenus = [
+  ["/dashboard", "Dashboard Saya", LayoutDashboard],
+  ["/tagihan-saya", "Tagihan Saya", Receipt],
+  ["/keluhan-saya", "Lapor Keluhan", MessageSquare],
+  ["/profil", "Profil Saya", UserRound],
+] as const;
 
 export default function Sidebar() {
   const { currentUser, logout } = useKos();
+
+  const isAdmin = currentUser?.role === "admin";
+  const displayMenus = isAdmin ? adminMenus : penghuniMenus
   return (
     <aside className="sidebar">
       <NavLink
         to="/dashboard"
         className="brand"
-        aria-label="SmartKos — Ringkasan"
+        aria-label="SmartKos: Ringkasan"
       >
         <span className="brand-icon">
           <Building2 size={22} aria-hidden="true" />
@@ -35,9 +47,9 @@ export default function Sidebar() {
           smartkos<span className="brand-dot">.</span>
         </span>
       </NavLink>
-      <p className="nav-label">MANAGEMENT WORKSPACE</p>
+      <p className="nav-label">{isAdmin ? "MANAGEMENT WORKSPACE" : "PENGHUNI WORKSPACE"}</p>
       <nav aria-label="Menu dashboard" className="sidebar-nav">
-        {menus.map(([path, label, Icon]) => (
+        {displayMenus.map(([path, label, Icon]) => (
           <NavLink
             key={path}
             to={path}
@@ -48,16 +60,18 @@ export default function Sidebar() {
           </NavLink>
         ))}
       </nav>
-      <NavLink to="/kamar" className="sidebar-shortcut">
-        Kelola ketersediaan kamar <ArrowUpRight size={16} aria-hidden="true" />
-      </NavLink>
+      {isAdmin && (
+        <NavLink to="/kamar" className="sidebar-shortcut">
+          Kelola Ketersediaan Kamar <ArrowUpRight size={16} aria-hidden="true"/>
+        </NavLink>
+      )}
       <div className="sidebar-account">
         <span className="avatar">
-          {currentUser?.username?.slice(0, 1).toUpperCase()}
+          {currentUser?.username?.slice(0, 1).toUpperCase() || "U "}
         </span>
         <div>
-          <strong>{currentUser?.username}</strong>
-          <small>Administrator</small>
+          <strong>{currentUser?.nama || currentUser?.username}</strong>
+          <small>{isAdmin ? "Administrator" : "Penghuni"}</small>
         </div>
       </div>
       <button type="button" onClick={logout} className="logout-button">

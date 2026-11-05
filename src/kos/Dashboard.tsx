@@ -6,15 +6,151 @@ import {
   ArrowUpRight,
   ArrowRight,
   CheckCircle2,
+  Receipt,
+  AlertCircle,
 } from "lucide-react";
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useKos } from "../context/kosContext";
-const rupiah = (value) => `Rp ${value.toLocaleString("id-ID")}`;
+import { formatTanggal, rupiah } from "../utils/format";
 
 export default function Dashboard() {
-  const { kamar, penghuni, transaksi, keluhan } = useKos();
+  const {
+    kamar,
+    penghuni,
+    transaksi,
+    keluhan,
+    currentUser,
+    penghuniSaya,
+    kamarSaya,
+    tagihanSaya,
+  } = useKos();
+  const isAdmin = currentUser?.role === "admin";
+
+  const transaksiTerbaru = useMemo(
+    () =>
+      [...transaksi]
+        .sort((a, b) => b.tanggal.localeCompare(a.tanggal))
+        .slice(0, 4),
+    [transaksi],
+  );
+
+  if(!isAdmin) {
+    const klaimMenunggu = currentUser?.klaim?.status === "Menunggu";
+    const keluhanSaya = keluhan.filter((k) => k.kamarId === kamarSaya?.id)
+    const pendingSaya = keluhanSaya.filter((k) => k.status !== "Selesai").length
+    const tagihanBelum = tagihanSaya.filter((t) => t.status === "Belum Dibayar")
+    const totalBelum = tagihanBelum.reduce((total, t) => total + t.jumlah, 0)
+    const terdekat = [...tagihanBelum].sort((a, b) =>
+      a.tanggalJatuhTempo.localeCompare(b.tanggalJatuhTempo),
+    )[0]
+
+    return (
+      <div className="dashboard space-y-6">
+        <div className="page-heading">
+          <div>
+            <p className="eyebrow">PENGHUNI WORKSPACE</p>
+            <h2>Selamat datang, {currentUser?.nama}!</h2>
+            <p>Pantau informasi kamar, tagihan, dan keluhan Anda di sini.</p>
+          </div>
+        </div>
+
+        <section className="stats-grid" aria-label="Statistik Penghuni">
+          <article className="stat-card">
+            <div className="stat-top">
+              <span>Kamar Anda</span>
+              <DoorOpen size={19} aria-hidden="true" />
+            </div>
+            <p className="stat-value">{kamarSaya ? `Kamar ${kamarSaya.nomor}` : "-"}</p>
+            <small className="text-slate-500 mt-2 block font-medium">
+              {kamarSaya ? `Tipe: ${kamarSaya.tipe}` : "Belum mendapat kamar"}
+            </small>
+          </article>
+
+          <article className="stat-card">
+            <div className="stat-top">
+              <span>Status Penghuni</span>
+              <Users size={19} aria-hidden="true" />
+            </div>
+            <p className="stat-value">
+              {!penghuniSaya
+                ? "Belum tertaut"
+                : penghuniSaya.statusAktif
+                  ? "Aktif"
+                  : "Sudah keluar"}
+            </p>
+            <small className="text-slate-500 mt-2 block font-medium">
+              {!penghuniSaya
+                ? klaimMenunggu
+                  ? "Menunggu persetujuan admin"
+                  : "Ajukan penautan di halaman Profil"
+                : penghuniSaya.statusAktif
+                  ? "Terdaftar di sistem"
+                  : "Tidak lagi menempati kamar"}
+            </small>
+          </article>
+
+          <article className="stat-card">
+            <div className="stat-top">
+              <span>Laporan Aktif</span>
+              <MessageSquare size={19} aria-hidden="true" />
+            </div>
+            <p className="stat-value">{pendingSaya}</p>
+            <small className="text-slate-500 mt-2 block font-medium">
+              Keluhan belum selesai
+            </small>
+          </article>
+
+          <article className="stat-card">
+            <div className="stat-top">
+              <span>Tagihan Belum Dibayar</span>
+              <Wallet size={19} aria-hidden="true" />
+            </div>
+            <p className="stat-value">{rupiah(totalBelum)}</p>
+            <small className="text-slate-500 mt-2 block font-medium">
+              {terdekat
+                ? `Jatuh tempo ${formatTanggal(terdekat.tanggalJatuhTempo)}`
+                : "Semua tagihan sudah lunas"}
+            </small>
+          </article>
+        </section>
+
+        <div className="dashboard-panels">
+          <section className="panel form-panel">
+            <h3>Akses Cepat</h3>
+            <Link className="action-row" to="/tagihan-saya">
+              <span>
+                <Receipt size={20} aria-hidden="true" />
+                Cek Tagihan Saya
+              </span>
+              <ArrowUpRight size={17} aria-hidden="true" />
+            </Link>
+            <Link className="action-row" to="/keluhan-saya">
+              <span>
+                <AlertCircle size={20} aria-hidden="true" />
+                Lapor Keluhan Baru
+              </span>
+              <ArrowUpRight size={17} aria-hidden="true" />
+            </Link>
+            <Link className="action-row" to="/profil">
+              <span>
+                <Users size={20} aria-hidden="true" />
+                {penghuniSaya
+                  ? "Profil & Kamar Saya"
+                  : klaimMenunggu
+                    ? "Cek Status Penautan"
+                    : "Ajukan Penautan Kamar"}
+              </span>
+              <ArrowUpRight size={17} aria-hidden="true" />
+            </Link>
+          </section>
+        </div>
+      </div>
+    );
+  }
+
   const terisi = kamar.filter((k) => k.status === "Terisi").length;
-  const kosong = kamar.length - terisi;
+  const kosong = kamar.length - terisi; 
   const aktif = penghuni.filter((p) => p.statusAktif).length;
   const pemasukan = transaksi
     .filter((t) => t.tipe === "Pemasukan")
@@ -141,11 +277,8 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody>
-              {transaksi.length ? (
-                [...transaksi]
-                  .sort((a, b) => b.tanggal.localeCompare(a.tanggal))
-                  .slice(0, 4)
-                  .map((t) => (
+              {transaksiTerbaru.length ? (
+                transaksiTerbaru.map((t) => (
                     <tr key={t.id}>
                       <td>{t.tanggal}</td>
                       <td className="font-medium">{t.keterangan}</td>
@@ -178,3 +311,4 @@ export default function Dashboard() {
     </div>
   );
 }
+
