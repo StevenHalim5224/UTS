@@ -4,9 +4,10 @@
 Pastikan Node.js versi 22.12 atau lebih baru sudah terpasang. Dari folder
 proyek, jalankan:
 
-
+```bash
 npm i
 npm run dev
+```
 
 
 
