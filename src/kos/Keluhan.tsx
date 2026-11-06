@@ -1,47 +1,14 @@
-import { Plus, RefreshCw, Trash2 } from "lucide-react";
-import { useState, type FormEvent } from "react";
+import { RefreshCw, Trash2 } from "lucide-react";
+import { useState } from "react";
 import ConfirmDialog from "../components/ConfirmDialog";
-import Modal from "../components/Modal";
 import { useToast } from "../components/Toast";
 import { useKos } from "../context/kosContext";
 import { formatTanggal, statusColor } from "../utils/format";
 
 const Keluhan = () => {
-  const { keluhan, kamar, ubahStatusKeluhan, tambahKeluhan, hapusKeluhan } =
-    useKos();
+  const { keluhan, kamar, ubahStatusKeluhan, hapusKeluhan } = useKos();
   const { notify } = useToast();
-  const [showModal, setShowModal] = useState(false);
   const [hapusId, setHapusId] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
-    kamarId: "",
-    kategori: "Listrik & Air",
-    deskripsi: "",
-  });
-
-  const handleBukaModal = () => {
-    setFormData({
-      kamarId: "",
-      kategori: "Listrik & Air",
-      deskripsi: "",
-    });
-    setShowModal(true);
-  };
-
-  const handleSimpan = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const hasil = tambahKeluhan({
-      kamarId: formData.kamarId,
-      kategori: formData.kategori,
-      deskripsi: formData.deskripsi,
-    });
-
-    if (!hasil.success) {
-      notify(hasil.message, "error");
-      return;
-    }
-    notify(hasil.message);
-    setShowModal(false);
-  };
 
   const handleStatus = (id: string) => {
     const hasil = ubahStatusKeluhan(id);
@@ -68,9 +35,6 @@ const Keluhan = () => {
             Daftar laporan dan perbaikan fasilitas kos.
           </p>
         </div>
-        <button type="button" className="btn-primary" onClick={handleBukaModal}>
-          <Plus size={17} aria-hidden="true" /> Buat Laporan
-        </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -133,87 +97,6 @@ const Keluhan = () => {
           </div>
         )}
       </div>
-
-      {showModal && (
-        <Modal title="Tambah Laporan Keluhan" onClose={() => setShowModal(false)}>
-          <form onSubmit={handleSimpan} className="modal-body space-y-4">
-            <div>
-              <label htmlFor="laporan-kamar" className="form-label">
-                Pilih kamar
-              </label>
-              <select
-                id="laporan-kamar"
-                required
-                className="form-input"
-                value={formData.kamarId}
-                onChange={(e) =>
-                  setFormData({ ...formData, kamarId: e.target.value })
-                }
-              >
-                <option value="" disabled>
-                  Pilih kamar
-                </option>
-                {kamar.map((k) => (
-                  <option key={k.id} value={k.id}>
-                    Kamar {k.nomor}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="laporan-kategori" className="form-label">
-                Kategori
-              </label>
-              <select
-                id="laporan-kategori"
-                required
-                className="form-input"
-                value={formData.kategori}
-                onChange={(e) =>
-                  setFormData({ ...formData, kategori: e.target.value })
-                }
-              >
-                <option value="Listrik & Air">Listrik & Air</option>
-                <option value="Fasilitas Kamar">Fasilitas Kamar</option>
-                <option value="Keamanan">Keamanan</option>
-                <option value="Kebersihan">Kebersihan</option>
-                <option value="Lainnya">Lainnya</option>
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="laporan-deskripsi" className="form-label">
-                Deskripsi
-              </label>
-              <textarea
-                id="laporan-deskripsi"
-                required
-                rows={3}
-                className="form-input resize-y"
-                value={formData.deskripsi}
-                onChange={(e) =>
-                  setFormData({ ...formData, deskripsi: e.target.value })
-                }
-                placeholder="Contoh: AC kurang dingin"
-              />
-            </div>
-
-            <div className="modal-actions">
-              <button
-                type="button"
-                onClick={() => setShowModal(false)}
-                className="btn-secondary"
-              >
-                Batal
-              </button>
-              <button type="submit" className="btn-primary">
-                Simpan
-              </button>
-            </div>
-          </form>
-        </Modal>
-      )}
 
       {hapusId && (
         <ConfirmDialog

@@ -136,6 +136,7 @@ textarea:focus {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  flex: 1;
 }
 .nav-item {
   display: flex;
@@ -1263,6 +1264,7 @@ textarea:focus {
   }
   .sidebar-nav {
     flex-direction: row;
+    flex: 0 0 auto;
     overflow-x: auto;
     margin-top: 18px;
     padding-bottom: 13px;

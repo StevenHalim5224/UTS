@@ -20,8 +20,8 @@ const initialData: InitialData = {
         { id: "P-01", nama: "Budi Santoso", username: "08123456789", nomorHp: "08123456789", tanggalMasuk: "2026-10-01", tanggalKeluar: null, kamarId: "k-102", statusAktif: true }
     ],
     tagihan: [
-        {id: "T-002", penghuniId: 'P-01', kamarId: 'k-102', periode: '2026-10', tanggalJatuhTempo: '2026-10-15', jumlah: 1500000, status: 'Belum Dibayar'},
-        {id: "T-001", penghuniId: 'P-01', kamarId: 'k-102', periode: '2026-09', tanggalJatuhTempo: '2026-09-15', jumlah: 1500000, status: 'Lunas', tanggalBayar: '2026-09-02', metode: 'Transfer Bank'}
+        {id: "T-002", penghuniId: 'P-01', kamarId: 'k-102', periode: '2026-10', tanggalJatuhTempo: '2026-11-01', jumlah: 1500000, status: 'Belum Dibayar'},
+        {id: "T-001", penghuniId: 'P-01', kamarId: 'k-102', periode: '2026-09', tanggalJatuhTempo: '2026-10-01', jumlah: 1500000, status: 'Lunas', tanggalBayar: '2026-09-02', metode: 'Transfer Bank'}
     ],
     transaksi: [
         {id: "TR-001", keterangan: "Pembayaran Sewa Sep 2026 - Budi Santoso", jumlah: 1500000, tipe: 'Pemasukan', tanggal: '2026-09-02'}

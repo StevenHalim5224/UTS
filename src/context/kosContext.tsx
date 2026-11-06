@@ -217,6 +217,31 @@ const periodeSekarang = () => {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 };
 
+/**
+ * Jatuh tempo satu periode: tanggal masuk penghuni di bulan berikutnya.
+ * Contoh: masuk 6 November, periode November jatuh tempo 6 Desember.
+ * Tanggal 29-31 dijepit ke hari terakhir bulan tujuan.
+ */
+const jatuhTempoPeriode = (periode: string, tanggalMasuk: string) => {
+  const [tahun, bulan] = periode.split("-").map(Number);
+  if (!tahun || !bulan) return periode;
+
+  const hariMasuk = Number((tanggalMasuk ?? "").slice(8, 10));
+  const hari = hariMasuk >= 1 && hariMasuk <= 31 ? hariMasuk : 1;
+
+  // Angka bulan periode sudah 1-based, jadi index bulan berikutnya sama dengan angka itu.
+  const bulanTujuan = new Date(tahun, bulan, 1);
+  const hariTerakhir = new Date(
+    bulanTujuan.getFullYear(),
+    bulanTujuan.getMonth() + 1,
+    0,
+  ).getDate();
+
+  return `${bulanTujuan.getFullYear()}-${String(
+    bulanTujuan.getMonth() + 1,
+  ).padStart(2, "0")}-${String(Math.min(hari, hariTerakhir)).padStart(2, "0")}`;
+};
+
 /** ID unik walau dua aksi terjadi pada milidetik yang sama. */
 const buatId = (prefix: string) =>
   `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -1174,7 +1199,7 @@ export const KosProvider = ({ children }: { children: ReactNode }) => {
           penghuniId: p.id,
           kamarId: kamar.id,
           periode,
-          tanggalJatuhTempo: `${periode}-10`,
+          tanggalJatuhTempo: jatuhTempoPeriode(periode, p.tanggalMasuk),
           jumlah: kamar.harga,
           status: "Belum Dibayar" as const,
         },

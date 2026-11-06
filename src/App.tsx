@@ -2,7 +2,8 @@ import { CalendarDays } from "lucide-react";
 import { lazy, Suspense, useMemo } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { KosProvider, useKos } from "./context/kosContext";
-import Auth from "./auth/Auth";
+import Login from "./auth/Login";
+import Register from "./auth/Register";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ToastProvider } from "./components/Toast";
 import Sidebar from "./kos/Sidebar";
@@ -129,7 +130,15 @@ export default function App() {
                 path="/login"
                 element={
                   <GuestRoute>
-                    <Auth />
+                    <Login />
+                  </GuestRoute>
+                }
+              />
+              <Route
+                path="/register"
+                element={
+                  <GuestRoute>
+                    <Register />
                   </GuestRoute>
                 }
               />
